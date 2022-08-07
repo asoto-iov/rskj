@@ -31,7 +31,6 @@ import org.ethereum.config.blockchain.upgrades.ActivationConfig;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.Keccak256Helper;
 import org.ethereum.datasource.DbKind;
-import org.ethereum.datasource.KeyValueDataSource;
 import org.ethereum.net.p2p.P2pHandler;
 import org.ethereum.net.rlpx.MessageCodec;
 import org.ethereum.net.rlpx.Node;
@@ -72,6 +71,7 @@ public abstract class SystemProperties {
     public static final String PROPERTY_BC_VERIFY = PROPERTY_BLOCKCHAIN_CONFIG + ".verify";
     public static final String PROPERTY_GENESIS_CONSTANTS_FEDERATION_PUBLICKEYS = "genesis_constants.federationPublicKeys";
     public static final String PROPERTY_KEYVALUE_DATASOURCE = "keyvalue.datasource";
+    public static final String PROPERTY_TRIESTORE_DATASOURCE = "triestore.datasource";
     public static final String PROPERTY_PEER_PORT = "peer.port";
     public static final String PROPERTY_BASE_PATH = "database.dir";
     public static final String PROPERTY_DB_RESET = "database.reset";
@@ -710,5 +710,9 @@ public abstract class SystemProperties {
 
     public DbKind databaseKind() {
         return DbKind.ofName(configFromFiles.getString(PROPERTY_KEYVALUE_DATASOURCE));
+    }
+
+  public DbKind trieStoreDatabaseKind() {
+        return DbKind.ofName(configFromFiles.getString(PROPERTY_TRIESTORE_DATASOURCE));
     }
 }
