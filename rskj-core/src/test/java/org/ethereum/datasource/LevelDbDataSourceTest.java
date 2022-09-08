@@ -21,30 +21,28 @@ package org.ethereum.datasource;
 
 import org.ethereum.db.ByteArrayWrapper;
 import org.ethereum.util.ByteUtil;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static org.ethereum.TestUtils.randomBytes;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class LevelDbDataSourceTest {
 
-    @Rule
-    public TemporaryFolder databaseDir = new TemporaryFolder();
+    @TempDir
+    public Path databaseDir;
 
     @Test
     public void testBatchUpdating() throws IOException {
-        LevelDbDataSource dataSource = new LevelDbDataSource("test", databaseDir.newFolder().getPath());
+        Path traceFilePath = databaseDir.resolve(UUID.randomUUID().toString());
+        traceFilePath.toFile().mkdir();
+
+        LevelDbDataSource dataSource = new LevelDbDataSource("test", traceFilePath.toString());
         dataSource.init();
 
         final int batchSize = 100;
@@ -59,7 +57,10 @@ public class LevelDbDataSourceTest {
 
     @Test
     public void testPutting() throws IOException {
-        LevelDbDataSource dataSource = new LevelDbDataSource("test", databaseDir.newFolder().getPath());
+        Path traceFilePath = databaseDir.resolve(UUID.randomUUID().toString());
+        traceFilePath.toFile().mkdir();
+
+        LevelDbDataSource dataSource = new LevelDbDataSource("test", traceFilePath.toString());
         dataSource.init();
 
         byte[] key = randomBytes(32);

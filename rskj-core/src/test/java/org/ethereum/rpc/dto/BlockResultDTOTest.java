@@ -35,9 +35,9 @@ import org.ethereum.core.Transaction;
 import org.ethereum.core.genesis.GenesisLoader;
 import org.ethereum.db.BlockStore;
 import org.ethereum.util.RskTestFactory;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import co.rsk.core.BlockDifficulty;
 import co.rsk.core.genesis.TestGenesisLoader;
@@ -54,7 +54,7 @@ public class BlockResultDTOTest {
     // todo(fedejinich) currently RemascTx(blockNumber) has a bug, thats why I initialize this way
     public static final RemascTransaction REMASC_TRANSACTION = new RemascTransaction(new RemascTransaction(1).getEncoded());
 
-    @Before
+    @BeforeEach
     public void setup() {
         block = buildBlockWithTransactions(Arrays.asList(TRANSACTION, REMASC_TRANSACTION));
         blockStore = mock(BlockStore.class);
@@ -66,10 +66,10 @@ public class BlockResultDTOTest {
         BlockResultDTO blockResultDTO = BlockResultDTO.fromBlock(block, false, blockStore, false);
         List<String> transactionHashes = transactionHashesByBlock(blockResultDTO);
 
-        Assert.assertNotNull(blockResultDTO);
-        Assert.assertEquals(2, blockResultDTO.getTransactions().size());
-        Assert.assertTrue(transactionHashes.contains(TRANSACTION.getHash().toJsonString()));
-        Assert.assertTrue(transactionHashes.contains(REMASC_TRANSACTION.getHash().toJsonString()));
+        Assertions.assertNotNull(blockResultDTO);
+        Assertions.assertEquals(2, blockResultDTO.getTransactions().size());
+        Assertions.assertTrue(transactionHashes.contains(TRANSACTION.getHash().toJsonString()));
+        Assertions.assertTrue(transactionHashes.contains(REMASC_TRANSACTION.getHash().toJsonString()));
     }
 
     @Test
@@ -77,10 +77,10 @@ public class BlockResultDTOTest {
         BlockResultDTO blockResultDTO = BlockResultDTO.fromBlock(block, false, blockStore, true);
         List<String> transactionHashes = transactionHashesByBlock(blockResultDTO);
 
-        Assert.assertNotNull(blockResultDTO);
-        Assert.assertEquals(1, blockResultDTO.getTransactions().size());
-        Assert.assertTrue(transactionHashes.contains(TRANSACTION.getHash().toJsonString()));
-        Assert.assertFalse(transactionHashes.contains(REMASC_TRANSACTION.getHash().toJsonString()));
+        Assertions.assertNotNull(blockResultDTO);
+        Assertions.assertEquals(1, blockResultDTO.getTransactions().size());
+        Assertions.assertTrue(transactionHashes.contains(TRANSACTION.getHash().toJsonString()));
+        Assertions.assertFalse(transactionHashes.contains(REMASC_TRANSACTION.getHash().toJsonString()));
     }
 
     @Test
@@ -88,10 +88,10 @@ public class BlockResultDTOTest {
         Block block = buildBlockWithTransactions(Arrays.asList(REMASC_TRANSACTION));
         BlockResultDTO blockResultDTO = BlockResultDTO.fromBlock(block, false, blockStore, true);
 
-        Assert.assertEquals(HexUtils.toUnformattedJsonHex(EMPTY_TRIE_HASH), blockResultDTO.getTransactionsRoot());
+        Assertions.assertEquals(HexUtils.toUnformattedJsonHex(EMPTY_TRIE_HASH), blockResultDTO.getTransactionsRoot());
 
-        Assert.assertNotNull(blockResultDTO);
-        Assert.assertTrue(blockResultDTO.getTransactions().isEmpty());
+        Assertions.assertNotNull(blockResultDTO);
+        Assertions.assertTrue(blockResultDTO.getTransactions().isEmpty());
     }
 
 
@@ -101,10 +101,10 @@ public class BlockResultDTOTest {
 
         List<String> transactionResultsHashes = transactionResultsByBlock(blockResultDTO).stream().map(e -> e.getHash()).collect(Collectors.toList());
 
-        Assert.assertNotNull(blockResultDTO);
-        Assert.assertEquals(2, blockResultDTO.getTransactions().size());
-        Assert.assertTrue(transactionResultsHashes.contains(TRANSACTION.getHash().toJsonString()));
-        Assert.assertTrue(transactionResultsHashes.contains(REMASC_TRANSACTION.getHash().toJsonString()));
+        Assertions.assertNotNull(blockResultDTO);
+        Assertions.assertEquals(2, blockResultDTO.getTransactions().size());
+        Assertions.assertTrue(transactionResultsHashes.contains(TRANSACTION.getHash().toJsonString()));
+        Assertions.assertTrue(transactionResultsHashes.contains(REMASC_TRANSACTION.getHash().toJsonString()));
     }
 
     @Test
@@ -113,10 +113,10 @@ public class BlockResultDTOTest {
 
         List<String> transactionResultsHashes = transactionResultsByBlock(blockResultDTO).stream().map(e -> e.getHash()).collect(Collectors.toList());
 
-        Assert.assertNotNull(blockResultDTO);
-        Assert.assertEquals(1, blockResultDTO.getTransactions().size());
-        Assert.assertTrue(transactionResultsHashes.contains(TRANSACTION.getHash().toJsonString()));
-        Assert.assertFalse(transactionResultsHashes.contains(REMASC_TRANSACTION.getHash().toJsonString()));
+        Assertions.assertNotNull(blockResultDTO);
+        Assertions.assertEquals(1, blockResultDTO.getTransactions().size());
+        Assertions.assertTrue(transactionResultsHashes.contains(TRANSACTION.getHash().toJsonString()));
+        Assertions.assertFalse(transactionResultsHashes.contains(REMASC_TRANSACTION.getHash().toJsonString()));
     }
 
     private List<TransactionResultDTO> transactionResultsByBlock(BlockResultDTO blockResultDTO) {

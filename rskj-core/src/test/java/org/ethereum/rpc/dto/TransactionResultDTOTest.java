@@ -24,14 +24,14 @@ import co.rsk.remasc.RemascTransaction;
 import org.ethereum.core.Block;
 import org.ethereum.core.CallTransaction;
 import org.ethereum.core.Transaction;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 
 public class TransactionResultDTOTest {
@@ -60,13 +60,13 @@ public class TransactionResultDTOTest {
 
         TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, originalTransaction);
 
-        Assert.assertNotNull(dto.getR());
-        Assert.assertNotNull(dto.getS());
-        Assert.assertNotNull(dto.getV());
+        Assertions.assertNotNull(dto.getR());
+        Assertions.assertNotNull(dto.getS());
+        Assertions.assertNotNull(dto.getV());
 
         String expectedV = String.format("0x%02x", originalTransaction.getSignature().getV() - Transaction.LOWER_REAL_V + Transaction.CHAIN_ID_INC + chainId * 2);
 
-        Assert.assertEquals(expectedV, dto.getV());
+        Assertions.assertEquals(expectedV, dto.getV());
     }
 
     @Test
@@ -80,8 +80,8 @@ public class TransactionResultDTOTest {
 
         TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, originalTransaction);
 
-        Assert.assertNotNull(dto.getNonce());
-        Assert.assertEquals("0x0", dto.getNonce());
+        Assertions.assertNotNull(dto.getNonce());
+        Assertions.assertEquals("0x0", dto.getNonce());
     }
 
     @Test
@@ -95,8 +95,8 @@ public class TransactionResultDTOTest {
 
         TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, originalTransaction);
 
-        Assert.assertNotNull(dto.getNonce());
-        Assert.assertEquals("0x1", dto.getNonce());
+        Assertions.assertNotNull(dto.getNonce());
+        Assertions.assertEquals("0x1", dto.getNonce());
     }
 }
 
