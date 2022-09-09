@@ -747,6 +747,7 @@ public class TransactionTest {
         ECKey ecKey = ECKey.fromPrivate(privKey);
         byte[] gasPrice = Hex.decode("09184e72a000");
         byte[] gas = Hex.decode("4255");
+        SignatureCache signatureCache = new BlockTxSignatureCache(new ReceivedTxSignatureCache());
 
         Transaction tx = Transaction.builder()
                 .gasPrice(gasPrice)
@@ -755,7 +756,7 @@ public class TransactionTest {
                 .value(value)
                 .build();
         try {
-            tx.verify();
+            tx.verify(signatureCache);
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -769,6 +770,7 @@ public class TransactionTest {
         ECKey ecKey = ECKey.fromPrivate(privKey);
         byte[] gasPrice = Hex.decode("09184e72a000");
         byte[] gas = Hex.decode("4255");
+        SignatureCache signatureCache = new BlockTxSignatureCache(new ReceivedTxSignatureCache());
 
         Transaction tx = Transaction.builder()
                 .gasPrice(gasPrice)
@@ -778,7 +780,7 @@ public class TransactionTest {
                 .build();
         tx.sign(senderPrivKey);
         try {
-            tx.verify();
+            tx.verify(signatureCache);
         } catch (Exception e) {
             fail(e.getMessage());
         }
