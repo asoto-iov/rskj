@@ -46,7 +46,7 @@ import co.rsk.test.builders.BlockBuilder;
 import co.rsk.test.builders.TransactionBuilder;
 import co.rsk.util.HexUtils;
 
-public class BlockResultDTOTest {
+class BlockResultDTOTest {
     private Block block;
     private BlockStore blockStore;
     public static final Transaction TRANSACTION = new TransactionBuilder().buildRandomTransaction();
@@ -55,14 +55,14 @@ public class BlockResultDTOTest {
     public static final RemascTransaction REMASC_TRANSACTION = new RemascTransaction(new RemascTransaction(1).getEncoded());
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         block = buildBlockWithTransactions(Arrays.asList(TRANSACTION, REMASC_TRANSACTION));
         blockStore = mock(BlockStore.class);
         when(blockStore.getTotalDifficultyForHash(any())).thenReturn(BlockDifficulty.ONE);
     }
 
     @Test
-    public void getBlockResultDTOWithRemascAndTransactionHashes() {
+    void getBlockResultDTOWithRemascAndTransactionHashes() {
         BlockResultDTO blockResultDTO = BlockResultDTO.fromBlock(block, false, blockStore, false);
         List<String> transactionHashes = transactionHashesByBlock(blockResultDTO);
 
@@ -73,7 +73,7 @@ public class BlockResultDTOTest {
     }
 
     @Test
-    public void getBlockResultDTOWithoutRemascAndTransactionHashes() {
+    void getBlockResultDTOWithoutRemascAndTransactionHashes() {
         BlockResultDTO blockResultDTO = BlockResultDTO.fromBlock(block, false, blockStore, true);
         List<String> transactionHashes = transactionHashesByBlock(blockResultDTO);
 
@@ -84,7 +84,7 @@ public class BlockResultDTOTest {
     }
 
     @Test
-    public void getBlockResultDTOWithoutRemasc_emptyTransactions() {
+    void getBlockResultDTOWithoutRemasc_emptyTransactions() {
         Block block = buildBlockWithTransactions(Arrays.asList(REMASC_TRANSACTION));
         BlockResultDTO blockResultDTO = BlockResultDTO.fromBlock(block, false, blockStore, true);
 
@@ -96,7 +96,7 @@ public class BlockResultDTOTest {
 
 
     @Test
-    public void getBlockResultDTOWithRemascAndFullTransactions() {
+    void getBlockResultDTOWithRemascAndFullTransactions() {
         BlockResultDTO blockResultDTO = BlockResultDTO.fromBlock(block, true, blockStore, false);
 
         List<String> transactionResultsHashes = transactionResultsByBlock(blockResultDTO).stream().map(e -> e.getHash()).collect(Collectors.toList());
@@ -108,7 +108,7 @@ public class BlockResultDTOTest {
     }
 
     @Test
-    public void getBlockResultDTOWithoutRemascAndFullTransactions() {
+    void getBlockResultDTOWithoutRemascAndFullTransactions() {
         BlockResultDTO blockResultDTO = BlockResultDTO.fromBlock(block, true, blockStore, true);
 
         List<String> transactionResultsHashes = transactionResultsByBlock(blockResultDTO).stream().map(e -> e.getHash()).collect(Collectors.toList());

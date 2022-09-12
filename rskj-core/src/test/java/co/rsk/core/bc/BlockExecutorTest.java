@@ -81,7 +81,7 @@ public class BlockExecutorTest {
     private RepositorySnapshot repository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         RskTestFactory objects = new RskTestFactory(CONFIG);
         blockchain = objects.getBlockchain();
         executor = objects.getBlockExecutor();
@@ -90,7 +90,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void executeBlockWithoutTransaction() {
+    void executeBlockWithoutTransaction() {
         Block parent = blockchain.getBestBlock();
         Block block = new BlockGenerator().createChildBlock(parent);
 
@@ -104,7 +104,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void executeBlockWithOneTransaction() {
+    void executeBlockWithOneTransaction() {
         executor.setRegisterProgramResults(false);
         Block block = getBlockWithOneTransaction(); // this changes the best block
         Block parent = blockchain.getBestBlock();
@@ -151,7 +151,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void executeBlockWithOneTransactionAndCollectingProgramResults() {
+    void executeBlockWithOneTransactionAndCollectingProgramResults() {
         executor.setRegisterProgramResults(true);
         Block block = getBlockWithOneTransaction(); // this changes the best block
         Block parent = blockchain.getBestBlock();
@@ -199,7 +199,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void executeBlockWithTwoTransactions() {
+    void executeBlockWithTwoTransactions() {
         Block block = getBlockWithTwoTransactions(); // this changes the best block
         Block parent = blockchain.getBestBlock();
 
@@ -257,7 +257,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void executeAndFillBlockWithOneTransaction() {
+    void executeAndFillBlockWithOneTransaction() {
         TestObjects objects = generateBlockWithOneTransaction();
         Block parent = objects.getParent();
         Block block = objects.getBlock();
@@ -277,7 +277,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void executeAndFillBlockWithTxToExcludeBecauseSenderHasNoBalance() {
+    void executeAndFillBlockWithTxToExcludeBecauseSenderHasNoBalance() {
         TrieStore trieStore = new TrieStoreImpl(new HashMapDB());
         Repository repository = new MutableRepository(new MutableTrieImpl(trieStore, new Trie(trieStore)));
 
@@ -340,7 +340,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void executeBlockWithTxThatMakesBlockInvalidSenderHasNoBalance() {
+    void executeBlockWithTxThatMakesBlockInvalidSenderHasNoBalance() {
         TrieStore trieStore = new TrieStoreImpl(new HashMapDB());
         Repository repository = new MutableRepository(new MutableTrieImpl(trieStore, new Trie(trieStore)));
 
@@ -395,7 +395,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void validateStateRootWithRskip126DisabledAndValidStateRoot() {
+    void validateStateRootWithRskip126DisabledAndValidStateRoot() {
         TrieStore trieStore = new TrieStoreImpl(new HashMapDB());
         Trie trie = new Trie(trieStore);
 
@@ -417,7 +417,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void validateStateRootWithRskip126DisabledAndInvalidStateRoot() {
+    void validateStateRootWithRskip126DisabledAndInvalidStateRoot() {
         TrieStore trieStore = new TrieStoreImpl(new HashMapDB());
         Trie trie = new Trie(trieStore);
 
@@ -439,7 +439,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void validateBlock() {
+    void validateBlock() {
         TestObjects objects = generateBlockWithOneTransaction();
         Block parent = objects.getParent();
         Block block = objects.getBlock();
@@ -449,7 +449,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void invalidBlockBadStateRoot() {
+    void invalidBlockBadStateRoot() {
         TestObjects objects = generateBlockWithOneTransaction();
         Block parent = objects.getParent();
         Block block = objects.getBlock();
@@ -462,7 +462,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void invalidBlockBadReceiptsRoot() {
+    void invalidBlockBadReceiptsRoot() {
         TestObjects objects = generateBlockWithOneTransaction();
         Block parent = objects.getParent();
         Block block = objects.getBlock();
@@ -475,7 +475,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void invalidBlockBadGasUsed() {
+    void invalidBlockBadGasUsed() {
         TestObjects objects = generateBlockWithOneTransaction();
         Block parent = objects.getParent();
         Block block = objects.getBlock();
@@ -487,7 +487,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void invalidBlockBadPaidFees() {
+    void invalidBlockBadPaidFees() {
         TestObjects objects = generateBlockWithOneTransaction();
         Block parent = objects.getParent();
         Block block = objects.getBlock();
@@ -499,7 +499,7 @@ public class BlockExecutorTest {
     }
 
     @Test
-    public void invalidBlockBadLogsBloom() {
+    void invalidBlockBadLogsBloom() {
         TestObjects objects = generateBlockWithOneTransaction();
         Block parent = objects.getParent();
         Block block = objects.getBlock();
@@ -653,19 +653,19 @@ public class BlockExecutorTest {
     // Testing strange Txs
     /////////////////////////////////////////////
     @Test
-    public void executeBlocksWithOneStrangeTransactions1() {
+    void executeBlocksWithOneStrangeTransactions1() {
         // will fail to create an address that is not 20 bytes long
-        Assertions.assertThrows(RuntimeException.class, () -> executeBlockWithOneStrangeTransaction(true, false, generateBlockWithOneStrangeTransaction(0)));
+        Assertions.assertThrows(RuntimeException.class, () -> generateBlockWithOneStrangeTransaction(0));
     }
 
     @Test
-    public void executeBlocksWithOneStrangeTransactions2() {
+    void executeBlocksWithOneStrangeTransactions2() {
         // will fail to create an address that is not 20 bytes long
-        Assertions.assertThrows(RuntimeException.class, () -> executeBlockWithOneStrangeTransaction(true, true, generateBlockWithOneStrangeTransaction(1)));
+        Assertions.assertThrows(RuntimeException.class, () -> generateBlockWithOneStrangeTransaction(1));
     }
 
     @Test
-    public void executeBlocksWithOneStrangeTransactions3() {
+    void executeBlocksWithOneStrangeTransactions3() {
         // the wrongly-encoded value parameter will be re-encoded with the correct serialization and won't fail
         executeBlockWithOneStrangeTransaction(false, false, generateBlockWithOneStrangeTransaction(2));
     }
@@ -699,7 +699,7 @@ public class BlockExecutorTest {
 
         Assertions.assertNotNull(result);
         if (mustFailExecution) {
-            Assertions.assertEquals(result, BlockResult.INTERRUPTED_EXECUTION_BLOCK_RESULT);
+            Assertions.assertEquals(BlockResult.INTERRUPTED_EXECUTION_BLOCK_RESULT, result);
             return;
         }
 

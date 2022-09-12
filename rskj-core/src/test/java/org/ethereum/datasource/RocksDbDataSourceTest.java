@@ -35,13 +35,13 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class RocksDbDataSourceTest {
+class RocksDbDataSourceTest {
 
     @TempDir
     public Path databaseDir;
 
     @Test
-    public void testBatchUpdating() throws IOException {
+    void testBatchUpdating() throws IOException {
         Path traceFilePath = databaseDir.resolve(UUID.randomUUID().toString());
         traceFilePath.toFile().mkdir();
 
@@ -59,7 +59,7 @@ public class RocksDbDataSourceTest {
     }
 
     @Test
-    public void testPutting() throws IOException {
+    void testPutting() throws IOException {
         Path traceFilePath = databaseDir.resolve(UUID.randomUUID().toString());
         traceFilePath.toFile().mkdir();
 

@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
-public class DataSourceWithCacheTest {
+class DataSourceWithCacheTest {
 
     private static final int CACHE_SIZE = 15;
 
@@ -26,7 +26,7 @@ public class DataSourceWithCacheTest {
     private DataSourceWithCache dataSourceWithCache;
 
     @BeforeEach
-    public void setupDataSources() {
+    void setupDataSources() {
         this.baseDataSource = spy(new HashMapDB());
         this.dataSourceWithCache = new DataSourceWithCache(baseDataSource, CACHE_SIZE);
     }
@@ -35,7 +35,7 @@ public class DataSourceWithCacheTest {
      * Checks that the base is acceded once
      */
     @Test
-    public void getAfterMiss() {
+    void getAfterMiss() {
         byte[] randomKey = TestUtils.randomBytes(20);
 
         baseDataSource.put(randomKey, TestUtils.randomBytes(20));
@@ -50,7 +50,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void getAfterModification() {
+    void getAfterModification() {
         byte[] randomKey = TestUtils.randomBytes(20);
         byte[] randomValue = TestUtils.randomBytes(20);
 
@@ -69,7 +69,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void getAfterDeletion() {
+    void getAfterDeletion() {
         byte[] randomKey = TestUtils.randomBytes(20);
         baseDataSource.put(randomKey, TestUtils.randomBytes(20));
 
@@ -89,7 +89,7 @@ public class DataSourceWithCacheTest {
      * {@link java.util.LinkedHashMap#putAll(Map)} eviction semantic
      */
     @Test
-    public void getWithFullCache() {
+    void getWithFullCache() {
         int expectedMisses = 1;
         Map<ByteArrayWrapper, byte[]> initialEntries = generateRandomValuesToUpdate(CACHE_SIZE + expectedMisses);
         dataSourceWithCache.updateBatch(initialEntries, Collections.emptySet());
@@ -103,7 +103,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void put() {
+    void put() {
         byte[] randomKey = TestUtils.randomBytes(20);
         byte[] randomValue = TestUtils.randomBytes(20);
 
@@ -115,7 +115,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void putTwoKeyValuesWrittenInOrder() {
+    void putTwoKeyValuesWrittenInOrder() {
         InOrder order = inOrder(baseDataSource);
 
         byte[] randomKey1 = TestUtils.randomBytes(20);
@@ -133,7 +133,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void keys() {
+    void keys() {
         Map<ByteArrayWrapper, byte[]> initialEntries = generateRandomValuesToUpdate(CACHE_SIZE);
         Set<byte[]> initialKeys = initialEntries.keySet().stream().map(ByteArrayWrapper::getData).collect(Collectors.toSet());
         baseDataSource.updateBatch(initialEntries, Collections.emptySet());
@@ -154,7 +154,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void keysAfterPut() {
+    void keysAfterPut() {
         Map<ByteArrayWrapper, byte[]> initialEntries = generateRandomValuesToUpdate(CACHE_SIZE);
         baseDataSource.updateBatch(initialEntries, Collections.emptySet());
 
@@ -173,7 +173,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void keysAfterDelete() {
+    void keysAfterDelete() {
         Map<ByteArrayWrapper, byte[]> initialEntries = generateRandomValuesToUpdate(CACHE_SIZE);
         baseDataSource.updateBatch(initialEntries, Collections.emptySet());
 
@@ -194,7 +194,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void delete() {
+    void delete() {
         byte[] randomKey = TestUtils.randomBytes(20);
         baseDataSource.put(randomKey, TestUtils.randomBytes(20));
 
@@ -205,7 +205,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void deleteNonExistentCachedKey() {
+    void deleteNonExistentCachedKey() {
         byte[] randomKey = TestUtils.randomBytes(20);
 
         // force caching non existing value
@@ -219,7 +219,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void deleteUnknownKey() {
+    void deleteUnknownKey() {
         byte[] randomKey = TestUtils.randomBytes(20);
 
         dataSourceWithCache.delete(randomKey);
@@ -233,7 +233,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void updateBatch() {
+    void updateBatch() {
         Map<ByteArrayWrapper, byte[]> initialEntries = generateRandomValuesToUpdate(CACHE_SIZE);
         baseDataSource.updateBatch(initialEntries, Collections.emptySet());
 
@@ -247,7 +247,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void checkCacheSnapshotLoadTriggered() {
+    void checkCacheSnapshotLoadTriggered() {
         CacheSnapshotHandler cacheSnapshotHandler = mock(CacheSnapshotHandler.class);
         new DataSourceWithCache(baseDataSource, CACHE_SIZE, cacheSnapshotHandler);
 
@@ -255,7 +255,7 @@ public class DataSourceWithCacheTest {
     }
 
     @Test
-    public void checkCacheSnapshotSaveTriggered() {
+    void checkCacheSnapshotSaveTriggered() {
         CacheSnapshotHandler cacheSnapshotHandler = mock(CacheSnapshotHandler.class);
         DataSourceWithCache dataSourceWithCache = new DataSourceWithCache(baseDataSource, CACHE_SIZE, cacheSnapshotHandler);
 

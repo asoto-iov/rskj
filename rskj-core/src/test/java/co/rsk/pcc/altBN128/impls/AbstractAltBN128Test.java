@@ -21,22 +21,22 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class AbstractAltBN128Test {
+class AbstractAltBN128Test {
 
     @Test
-    public void testInitialization_JavaAltBN128() {
+    void testInitialization_JavaAltBN128() {
         AbstractAltBN128 result = AbstractAltBN128.init(() -> false, () -> null);
         assertTrue(result instanceof JavaAltBN128);
     }
 
     @Test
-    public void testInitialization_fallbackOnJavaAltBN128() {
+    void testInitialization_fallbackOnJavaAltBN128() {
         AbstractAltBN128 result = AbstractAltBN128.init(() -> true, RuntimeException::new);
         assertTrue(result instanceof JavaAltBN128);
     }
 
     @Test
-    public void testInitialization_GoAltBN128() {
+    void testInitialization_GoAltBN128() {
         AbstractAltBN128 result = AbstractAltBN128.init(() -> true, () -> null);
         assertTrue(result instanceof GoAltBN128);
     }

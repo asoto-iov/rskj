@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 
-public class KeyValueDataSourceTest {
+class KeyValueDataSourceTest {
 
     private static final int CACHE_SIZE = 100;
 
@@ -28,7 +28,7 @@ public class KeyValueDataSourceTest {
 
     @ParameterizedTest(name = "{1}, flush = {2}")
     @ArgumentsSource(DatasourceArgumentsProvider.class)
-    public void put(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
+    void put(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
         byte[] randomKey = TestUtils.randomBytes(20);
         byte[] randomValue = TestUtils.randomBytes(20);
 
@@ -41,13 +41,13 @@ public class KeyValueDataSourceTest {
 
     @ParameterizedTest(name = "{1}, flush = {2}")
     @ArgumentsSource(DatasourceArgumentsProvider.class)
-    public void getNull(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
+    void getNull(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
         Assertions.assertThrows(NullPointerException.class, () -> keyValueDataSource.get(null));
     }
 
     @ParameterizedTest(name = "{1}, flush = {2}")
     @ArgumentsSource(DatasourceArgumentsProvider.class)
-    public void delete(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
+    void delete(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
         byte[] randomKey = TestUtils.randomBytes(20);
         byte[] randomValue = TestUtils.randomBytes(20);
 
@@ -61,7 +61,7 @@ public class KeyValueDataSourceTest {
 
     @ParameterizedTest(name = "{1}, flush = {2}")
     @ArgumentsSource(DatasourceArgumentsProvider.class)
-    public void updateBatch(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
+    void updateBatch(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
         Map<ByteArrayWrapper, byte[]> updatedValues = generateRandomValuesToUpdate(CACHE_SIZE);
 
         keyValueDataSource.updateBatch(updatedValues, Collections.emptySet());
@@ -76,7 +76,7 @@ public class KeyValueDataSourceTest {
 
     @ParameterizedTest(name = "{1}, flush = {2}")
     @ArgumentsSource(DatasourceArgumentsProvider.class)
-    public void updateBatchWithKeysToRemove(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
+    void updateBatchWithKeysToRemove(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
         Map<ByteArrayWrapper, byte[]> updatedValues = generateRandomValuesToUpdate(CACHE_SIZE);
         keyValueDataSource.updateBatch(updatedValues, Collections.emptySet());
         keyValueDataSource.updateBatch(Collections.emptyMap(), updatedValues.keySet());
@@ -92,19 +92,20 @@ public class KeyValueDataSourceTest {
 
         @ParameterizedTest(name = "{1}, flush = {2}")
     @ArgumentsSource(DatasourceArgumentsProvider.class)
-    public void putNullValue(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
+    void putNullValue(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
         byte[] randomKey = TestUtils.randomBytes(20);
         Assertions.assertThrows(RuntimeException.class, () -> keyValueDataSource.put(randomKey, null)); ;
     }
 
     @ParameterizedTest(name = "{1}, flush = {2}")
     @ArgumentsSource(DatasourceArgumentsProvider.class)
-    public void updateBatchWithNulls(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
+    void updateBatchWithNulls(KeyValueDataSource keyValueDataSource, String className, boolean withFlush) {
         Map<ByteArrayWrapper, byte[]> updatedValues = generateRandomValuesToUpdate(CACHE_SIZE);
         ByteArrayWrapper keyToNull = updatedValues.keySet().iterator().next();
         updatedValues.put(keyToNull, null);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> keyValueDataSource.updateBatch(updatedValues, Collections.emptySet()));
+        Set<ByteArrayWrapper> keysToRemove = Collections.emptySet();
+        Assertions.assertThrows(IllegalArgumentException.class, () -> keyValueDataSource.updateBatch(updatedValues, keysToRemove));
     }
 
     private Map<ByteArrayWrapper, byte[]> generateRandomValuesToUpdate(int maxValuesToCreate) {

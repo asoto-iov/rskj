@@ -68,13 +68,13 @@ import static org.mockito.Mockito.*;
 /**
  * Created by ajlopez on 26/04/2020.
  */
-public class CliToolsTest {
+class CliToolsTest {
 
     @TempDir
     private Path tempDir;
 
     @Test
-    public void exportBlocks() throws IOException, DslProcessorException {
+    void exportBlocks() throws IOException, DslProcessorException {
         DslParser parser = DslParser.fromResource("dsl/blocks01.txt");
         World world = new World();
         WorldDslProcessor processor = new WorldDslProcessor(world);
@@ -112,7 +112,7 @@ public class CliToolsTest {
     }
 
     @Test
-    public void exportState() throws IOException, DslProcessorException {
+    void exportState() throws IOException, DslProcessorException {
         DslParser parser = DslParser.fromResource("dsl/contracts02.txt");
         World world = new World();
         WorldDslProcessor processor = new WorldDslProcessor(world);
@@ -153,7 +153,7 @@ public class CliToolsTest {
     }
 
     @Test
-    public void showStateInfo() throws FileNotFoundException, DslProcessorException {
+    void showStateInfo() throws FileNotFoundException, DslProcessorException {
         DslParser parser = DslParser.fromResource("dsl/contracts02.txt");
         World world = new World();
         WorldDslProcessor processor = new WorldDslProcessor(world);
@@ -190,7 +190,7 @@ public class CliToolsTest {
     }
 
     @Test
-    public void executeBlocks() throws FileNotFoundException, DslProcessorException {
+    void executeBlocks() throws FileNotFoundException, DslProcessorException {
         DslParser parser = DslParser.fromResource("dsl/contracts02.txt");
         World world = new World();
         WorldDslProcessor processor = new WorldDslProcessor(world);
@@ -219,7 +219,7 @@ public class CliToolsTest {
     }
 
     @Test
-    public void connectBlocks() throws IOException, DslProcessorException {
+    void connectBlocks() throws IOException, DslProcessorException {
         DslParser parser = DslParser.fromResource("dsl/blocks01b.txt");
         ReceiptStore receiptStore = new ReceiptStoreImpl(new HashMapDB());
         World world = new World(receiptStore);
@@ -276,7 +276,7 @@ public class CliToolsTest {
     }
 
     @Test
-    public void importBlocks() throws IOException, DslProcessorException {
+    void importBlocks() throws IOException, DslProcessorException {
         DslParser parser = DslParser.fromResource("dsl/blocks01b.txt");
         ReceiptStore receiptStore = new ReceiptStoreImpl(new HashMapDB());
         World world = new World(receiptStore);
@@ -328,7 +328,7 @@ public class CliToolsTest {
     }
 
     @Test
-    public void importState() throws IOException {
+    void importState() throws IOException {
         byte[] value = new byte[42];
         Random random = new Random();
         random.nextBytes(value);
@@ -367,7 +367,7 @@ public class CliToolsTest {
     }
 
     @Test
-    public void rewindBlocks() {
+    void rewindBlocks() {
         TestSystemProperties config = new TestSystemProperties();
         BlockFactory blockFactory = new BlockFactory(config.getActivationConfig());
         KeyValueDataSource keyValueDataSource = new HashMapDB();
@@ -472,9 +472,9 @@ public class CliToolsTest {
     }
 
     @Test
-    public void dbMigrate() throws IOException {
-        File nodeIdPropsFile = new File(tempFolder.getRoot(), "nodeId.properties");
-        File dbKindPropsFile = new File(tempFolder.getRoot(), KeyValueDataSource.DB_KIND_PROPERTIES_FILE);
+    void dbMigrate() throws IOException {
+        File nodeIdPropsFile = new File(tempDir.toFile(), "nodeId.properties");
+        File dbKindPropsFile = new File(tempDir.toFile(), KeyValueDataSource.DB_KIND_PROPERTIES_FILE);
 
         if (nodeIdPropsFile.createNewFile()) {
             FileWriter myWriter = new FileWriter(nodeIdPropsFile);
@@ -482,13 +482,13 @@ public class CliToolsTest {
             myWriter.close();
         }
 
-        new File(tempFolder.getRoot(), "blocks").mkdir();
+        new File(tempDir.toFile(), "blocks").mkdir();
 
         RskContext rskContext = mock(RskContext.class);
         RskSystemProperties rskSystemProperties = mock(RskSystemProperties.class);
 
         doReturn(DbKind.LEVEL_DB).when(rskSystemProperties).databaseKind();
-        doReturn(tempFolder.getRoot().getPath()).when(rskSystemProperties).databaseDir();
+        doReturn(tempDir.toFile().getPath()).when(rskSystemProperties).databaseDir();
         doReturn(true).when(rskSystemProperties).databaseReset();
         doReturn(rskSystemProperties).when(rskContext).getRskSystemProperties();
 
@@ -515,19 +515,19 @@ public class CliToolsTest {
             reader.close();
         }
 
-        Assert.assertEquals(nodeIdPropsFileLine, "nodeId=testing");
-        Assert.assertEquals(dbKindPropsFileLine, "keyvalue.datasource=ROCKS_DB");
+        Assertions.assertEquals("nodeId=testing", nodeIdPropsFileLine);
+        Assertions.assertEquals("keyvalue.datasource=ROCKS_DB", dbKindPropsFileLine);
     }
 
     @Test
-    public void dbMigrateThrowsExceptionBecauseMigratingToSameDb() throws IOException {
-        File dbKindPropsFile = new File(tempFolder.getRoot(), KeyValueDataSource.DB_KIND_PROPERTIES_FILE);
+    void dbMigrateThrowsExceptionBecauseMigratingToSameDb() throws IOException {
+        File dbKindPropsFile = new File(tempDir.toFile(), KeyValueDataSource.DB_KIND_PROPERTIES_FILE);
 
         RskContext rskContext = mock(RskContext.class);
         RskSystemProperties rskSystemProperties = mock(RskSystemProperties.class);
 
         doReturn(DbKind.LEVEL_DB).when(rskSystemProperties).databaseKind();
-        doReturn(tempFolder.getRoot().getPath()).when(rskSystemProperties).databaseDir();
+        doReturn(tempDir.toFile().getPath()).when(rskSystemProperties).databaseDir();
         doReturn(true).when(rskSystemProperties).databaseReset();
         doReturn(rskSystemProperties).when(rskContext).getRskSystemProperties();
 
@@ -546,11 +546,11 @@ public class CliToolsTest {
             reader.close();
         }
 
-        Assert.assertNull(dbKindPropsFileLine);
+        Assertions.assertNull(dbKindPropsFileLine);
     }
 
     @Test
-    public void startBootstrap() throws Exception {
+    void startBootstrap() throws Exception {
         // check thread setup
         Thread thread = new Thread(() -> {
         });
@@ -588,7 +588,7 @@ public class CliToolsTest {
     }
 
     @Test
-    public void makeBlockRange() {
+    void makeBlockRange() {
         BlockStore blockStore = mock(BlockStore.class);
         doReturn(5L).when(blockStore).getMinNumber();
         doReturn(10L).when(blockStore).getMaxNumber();
@@ -645,7 +645,7 @@ public class CliToolsTest {
     }
 
     @Test
-    public void indexBlooms() {
+    void indexBlooms() {
         Block block = mock(Block.class);
         BlockStore blockStore = mock(BlockStore.class);
         BlocksBloomStore blocksBloomStore = mock(BlocksBloomStore.class);
