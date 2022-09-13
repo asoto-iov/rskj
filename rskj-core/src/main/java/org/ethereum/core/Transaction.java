@@ -372,6 +372,14 @@ public class Transaction {
         return key;
     }
 
+    /**
+     * Returns sender's Address
+     * <p>
+     * Usage of this method should be avoided in favor of getSender(SignatureCache signatureCache)
+     * as it tries to get the data from the cache first, improving performance.
+     *
+     * @return RskAddress the sender's Address
+     */
     public synchronized RskAddress getSender() {
         if (sender != null) {
             return sender;
