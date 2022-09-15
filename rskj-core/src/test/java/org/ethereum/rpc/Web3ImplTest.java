@@ -18,6 +18,8 @@
 
 package org.ethereum.rpc;
 
+import co.rsk.Injector;
+import co.rsk.RskContext;
 import co.rsk.config.RskSystemProperties;
 import co.rsk.config.TestSystemProperties;
 import co.rsk.core.*;
@@ -822,11 +824,18 @@ public class Web3ImplTest {
     @Test
     public void getPendingTransactionByHash() {
         ReceiptStore receiptStore = new ReceiptStoreImpl(new HashMapDB());
+
+        RskContext rskContextMock = mock(RskContext.class);
+        Injector.start(rskContextMock);
+
         World world = new World(receiptStore);
 
         BlockChainImpl blockChain = world.getBlockChain();
         BlockStore blockStore = world.getBlockStore();
+
         TransactionExecutorFactory transactionExecutorFactory = buildTransactionExecutorFactory(blockStore, world.getBlockTxSignatureCache());
+        when(rskContextMock.getTransactionExecutorFactory()).thenReturn(transactionExecutorFactory);
+
         TransactionPool transactionPool = new TransactionPoolImpl(config, world.getRepositoryLocator(), blockStore, blockFactory, null, transactionExecutorFactory, world.getReceivedTxSignatureCache(), 10, 100, Mockito.mock(TxQuotaChecker.class), Mockito.mock(GasPriceTracker.class));
         transactionPool.processBest(blockChain.getBestBlock());
         Web3Impl web3 = createWeb3(world, transactionPool, receiptStore);

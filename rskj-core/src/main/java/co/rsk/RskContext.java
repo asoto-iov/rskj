@@ -262,6 +262,8 @@ public class RskContext implements NodeContext, NodeBootstrapper {
                 NodeCliOptions.class,
                 NodeCliFlags.class
         ).parse(args));
+
+        Injector.start(this);
     }
 
     private RskContext(CliArgs<NodeCliOptions, NodeCliFlags> cliArgs) {

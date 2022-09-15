@@ -18,6 +18,8 @@
 
 package co.rsk.core.bc;
 
+import co.rsk.Injector;
+import co.rsk.RskContext;
 import co.rsk.blockchain.utils.BlockGenerator;
 import co.rsk.config.RskSystemProperties;
 import co.rsk.core.Coin;
@@ -26,7 +28,6 @@ import co.rsk.db.RepositoryLocator;
 import co.rsk.net.handler.quota.TxQuotaChecker;
 import co.rsk.remasc.RemascTransaction;
 import co.rsk.test.builders.BlockBuilder;
-import org.ethereum.TestUtils;
 import org.ethereum.core.*;
 import org.ethereum.core.genesis.GenesisLoader;
 import org.ethereum.listener.GasPriceTracker;
@@ -42,7 +43,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
 import static org.ethereum.util.TransactionFactoryHelper.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -63,7 +63,7 @@ public class TransactionPoolImplTest {
 
     @Before
     public void setUp() {
-        rskTestContext = new RskTestContext(new String[]{"--regtest"}) {
+        rskTestContext = spy(new RskTestContext(new String[]{"--regtest"}) {
             @Override
             protected GenesisLoader buildGenesisLoader() {
                 return new TestGenesisLoader(getTrieStore(), "rsk-unittests.json", BigInteger.ZERO, true, true, true);
@@ -73,7 +73,7 @@ public class TransactionPoolImplTest {
             protected RepositoryLocator buildRepositoryLocator() {
                 return spy(super.buildRepositoryLocator());
             }
-        };
+        });
 
         blockChain = rskTestContext.getBlockchain();
         RepositoryLocator repositoryLocator = rskTestContext.getRepositoryLocator();
@@ -82,6 +82,11 @@ public class TransactionPoolImplTest {
 
         RskSystemProperties rskSystemProperties = spy(rskTestContext.getRskSystemProperties());
         when(rskSystemProperties.isAccountTxRateLimitEnabled()).thenReturn(true);
+
+        quotaChecker = mock(TxQuotaChecker.class);
+        when(quotaChecker.acceptTx(any(), any(), any())).thenReturn(true);
+
+        when(rskTestContext.getTxQuotaChecker()).thenReturn(quotaChecker);
 
         transactionPool = new TransactionPoolImpl(
                 rskSystemProperties,
@@ -93,12 +98,8 @@ public class TransactionPoolImplTest {
                 signatureCache,
                 10,
                 100,
-                Mockito.mock(TxQuotaChecker.class),
+                null,
                 Mockito.mock(GasPriceTracker.class));
-
-        quotaChecker = mock(TxQuotaChecker.class);
-        when(quotaChecker.acceptTx(any(), any(), any())).thenReturn(true);
-        TestUtils.setInternalState(transactionPool, "quotaChecker", quotaChecker);
 
         // don't call start to avoid creating threads
         transactionPool.processBest(blockChain.getBestBlock());
