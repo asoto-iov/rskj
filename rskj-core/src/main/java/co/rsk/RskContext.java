@@ -1762,7 +1762,7 @@ public class RskContext implements NodeContext, NodeBootstrapper {
                     getBlockFactory(),
                     getBlockExecutor(),
                     new MinimumGasPriceCalculator(Coin.valueOf(getMiningConfig().getMinGasPriceTarget())),
-                    new MinerUtils()
+                    new MinerUtils(getBlockTxSignatureCache())
             );
         }
 
