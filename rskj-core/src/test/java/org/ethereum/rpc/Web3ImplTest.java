@@ -83,6 +83,7 @@ import org.ethereum.vm.PrecompiledContracts;
 import org.ethereum.vm.program.ProgramResult;
 import org.ethereum.vm.program.invoke.ProgramInvokeFactoryImpl;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -110,6 +111,13 @@ public class Web3ImplTest {
     private final SyncProcessor syncProcessor = mock(SyncProcessor.class);
 
     private Wallet wallet;
+
+    private SignatureCache signatureCache;
+
+    @Before
+    public void setup() {
+        signatureCache = new BlockTxSignatureCache(new ReceivedTxSignatureCache());
+    }
 
     @Test
     public void web3_clientVersion() {
@@ -648,7 +656,7 @@ public class Web3ImplTest {
         RskSystemProperties mockProperties = Web3Mocks.getMockProperties();
         MinerClient minerClient = new SimpleMinerClient();
         PersonalModule personalModule = new PersonalModuleWalletDisabled();
-        TxPoolModule txPoolModule = new TxPoolModuleImpl(Web3Mocks.getMockTransactionPool());
+        TxPoolModule txPoolModule = new TxPoolModuleImpl(Web3Mocks.getMockTransactionPool(), signatureCache);
         DebugModule debugModule = new DebugModuleImpl(null, null, Web3Mocks.getMockMessageHandler(), null, null);
         Web3 web3 = new Web3Impl(
                 ethMock,
@@ -2349,7 +2357,7 @@ public class Web3ImplTest {
                         null, config.getNetworkConstants().getBridgeConstants(), config.getActivationConfig()),
                 config.getGasEstimationCap()
         );
-        TxPoolModule txPoolModule = new TxPoolModuleImpl(Web3Mocks.getMockTransactionPool());
+        TxPoolModule txPoolModule = new TxPoolModuleImpl(Web3Mocks.getMockTransactionPool(), signatureCache);
         DebugModule debugModule = new DebugModuleImpl(null, null, Web3Mocks.getMockMessageHandler(), null, null);
         MinerClient minerClient = new SimpleMinerClient();
         ChannelManager channelManager = new SimpleChannelManager();
@@ -2460,7 +2468,7 @@ public class Web3ImplTest {
                         null, config.getNetworkConstants().getBridgeConstants(), config.getActivationConfig()),
                 config.getGasEstimationCap()
         );
-        TxPoolModule txPoolModule = new TxPoolModuleImpl(transactionPool);
+        TxPoolModule txPoolModule = new TxPoolModuleImpl(transactionPool, signatureCache);
         DebugModule debugModule = new DebugModuleImpl(null, null, Web3Mocks.getMockMessageHandler(), null, null);
         RskModule rskModule = new RskModuleImpl(blockchain, blockStore, receiptStore, retriever);
         MinerClient minerClient = new SimpleMinerClient();
@@ -2521,7 +2529,7 @@ public class Web3ImplTest {
                 new BridgeSupportFactory(
                         null, config.getNetworkConstants().getBridgeConstants(), config.getActivationConfig()),
                 config.getGasEstimationCap());
-        TxPoolModule txPoolModule = new TxPoolModuleImpl(transactionPool);
+        TxPoolModule txPoolModule = new TxPoolModuleImpl(transactionPool, signatureCache);
         DebugModule debugModule = new DebugModuleImpl(null, null, Web3Mocks.getMockMessageHandler(), null, null);
         RskModule rskModule = new RskModuleImpl(blockchain, blockStore, receiptStore, retriever);
         MinerClient minerClient = new SimpleMinerClient();
