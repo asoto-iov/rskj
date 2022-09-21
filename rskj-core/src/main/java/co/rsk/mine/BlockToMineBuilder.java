@@ -70,6 +70,8 @@ public class BlockToMineBuilder {
 
     private final ForkDetectionDataCalculator forkDetectionDataCalculator;
 
+    private final SignatureCache signatureCache;
+
     public BlockToMineBuilder(
             ActivationConfig activationConfig,
             MiningConfig miningConfig,
@@ -84,7 +86,8 @@ public class BlockToMineBuilder {
             BlockFactory blockFactory,
             BlockExecutor blockExecutor,
             MinimumGasPriceCalculator minimumGasPriceCalculator,
-            MinerUtils minerUtils) {
+            MinerUtils minerUtils,
+            SignatureCache signatureCache) {
         this.activationConfig = Objects.requireNonNull(activationConfig);
         this.miningConfig = Objects.requireNonNull(miningConfig);
         this.repositoryLocator = Objects.requireNonNull(repositoryLocator);
@@ -99,6 +102,7 @@ public class BlockToMineBuilder {
         this.executor = blockExecutor;
         this.minimumGasPriceCalculator = minimumGasPriceCalculator;
         this.minerUtils = minerUtils;
+        this.signatureCache = signatureCache;
     }
 
     /**
@@ -133,7 +137,7 @@ public class BlockToMineBuilder {
 
     private List<Transaction> getTransactions(List<Transaction> txsToRemove, BlockHeader parentHeader, Coin minGasPrice) {
         logger.debug("getting transactions from pending state");
-        List<Transaction> txs = minerUtils.getAllTransactions(transactionPool);
+        List<Transaction> txs = minerUtils.getAllTransactions(transactionPool, signatureCache);
         logger.debug("{} transaction(s) collected from pending state", txs.size());
 
         final long blockNumber = parentHeader.getNumber() + 1;
@@ -146,7 +150,7 @@ public class BlockToMineBuilder {
 
         final boolean isRskip252Enabled = activationConfig.isActive(ConsensusRule.RSKIP252, blockNumber);
 
-        return minerUtils.filterTransactions(txsToRemove, txs, accountNonces, originalRepo, minGasPrice, isRskip252Enabled);
+        return minerUtils.filterTransactions(txsToRemove, txs, accountNonces, originalRepo, minGasPrice, isRskip252Enabled, signatureCache);
     }
 
     private void removePendingTransactions(List<Transaction> transactions) {

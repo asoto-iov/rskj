@@ -40,10 +40,12 @@ public class MinerUtilsTest {
 
     private final TestSystemProperties config = new TestSystemProperties();
     private MinerUtils minerUtils;
+    private SignatureCache signatureCache;
 
     @Before
     public void setup() {
-        minerUtils = new MinerUtils(new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
+        signatureCache = new BlockTxSignatureCache(new ReceivedTxSignatureCache());
+        minerUtils = new MinerUtils();
     }
 
     @Test
@@ -77,7 +79,7 @@ public class MinerUtilsTest {
 
         Mockito.when(transactionPool.getPendingTransactions()).thenReturn(txs);
 
-        List<Transaction> res = minerUtils.getAllTransactions(transactionPool);
+        List<Transaction> res = minerUtils.getAllTransactions(transactionPool, new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
 
         Assert.assertEquals(2, res.size());
     }
@@ -92,7 +94,7 @@ public class MinerUtilsTest {
         Repository repository = Mockito.mock(Repository.class);
         Mockito.when(repository.getNonce(tx.getSender(null))).thenReturn(BigInteger.valueOf(0));
 
-        List<Transaction> res = minerUtils.filterTransactions(new LinkedList<>(), txs, accountNounces, repository, ONE_COIN, true);
+        List<Transaction> res = minerUtils.filterTransactions(new LinkedList<>(), txs, accountNounces, repository, ONE_COIN, true, signatureCache);
         Assert.assertEquals(1, res.size());
     }
 
@@ -106,7 +108,7 @@ public class MinerUtilsTest {
         accountNounces.put(tx.getSender(null), BigInteger.valueOf(0));
         Repository repository = Mockito.mock(Repository.class);
 
-        List<Transaction> res = minerUtils.filterTransactions(new LinkedList<>(), txs, accountNounces, repository, ONE_COIN, true);
+        List<Transaction> res = minerUtils.filterTransactions(new LinkedList<>(), txs, accountNounces, repository, ONE_COIN, true, signatureCache);
         Assert.assertEquals(1, res.size());
     }
 
@@ -120,7 +122,7 @@ public class MinerUtilsTest {
         Repository repository = Mockito.mock(Repository.class);
 
         List<Transaction> txsToRemove = new LinkedList<>();
-        List<Transaction> res = minerUtils.filterTransactions(txsToRemove, txs, accountNounces, repository, ONE_COIN, true);
+        List<Transaction> res = minerUtils.filterTransactions(txsToRemove, txs, accountNounces, repository, ONE_COIN, true, signatureCache);
         Assert.assertEquals(0, res.size());
         Assert.assertEquals(0, txsToRemove.size());
     }
@@ -137,7 +139,7 @@ public class MinerUtilsTest {
         Coin minGasPrice = Coin.valueOf(2L);
 
         LinkedList<Transaction> txsToRemove = new LinkedList<>();
-        List<Transaction> res = minerUtils.filterTransactions(txsToRemove, txs, accountNounces, repository, minGasPrice, true);
+        List<Transaction> res = minerUtils.filterTransactions(txsToRemove, txs, accountNounces, repository, minGasPrice, true, signatureCache);
         Assert.assertEquals(0, res.size());
         Assert.assertEquals(1, txsToRemove.size());
     }
@@ -155,7 +157,7 @@ public class MinerUtilsTest {
         Coin minGasPrice = Coin.valueOf(2L);
 
         LinkedList<Transaction> txsToRemove = new LinkedList<>();
-        List<Transaction> res = minerUtils.filterTransactions(txsToRemove, txs, accountNounces, repository, minGasPrice, true);
+        List<Transaction> res = minerUtils.filterTransactions(txsToRemove, txs, accountNounces, repository, minGasPrice, true, signatureCache);
         Assert.assertEquals(0, res.size());
         Assert.assertEquals(1, txsToRemove.size());
     }
@@ -177,7 +179,7 @@ public class MinerUtilsTest {
         Repository repository = Mockito.mock(Repository.class);
 
         LinkedList<Transaction> txsToRemove = new LinkedList<>();
-        List<Transaction> res = minerUtils.filterTransactions(txsToRemove, txs, accountNounces, repository, minGasPrice, false);
+        List<Transaction> res = minerUtils.filterTransactions(txsToRemove, txs, accountNounces, repository, minGasPrice, false, signatureCache);
 
         Assert.assertEquals(2, res.size());
         Assert.assertEquals(0, txsToRemove.size());
@@ -200,7 +202,7 @@ public class MinerUtilsTest {
         Repository repository = Mockito.mock(Repository.class);
 
         LinkedList<Transaction> txsToRemove = new LinkedList<>();
-        List<Transaction> res = minerUtils.filterTransactions(txsToRemove, txs, accountNounces, repository, minGasPrice, true);
+        List<Transaction> res = minerUtils.filterTransactions(txsToRemove, txs, accountNounces, repository, minGasPrice, true, signatureCache);
 
         Assert.assertEquals(1, res.size());
         Assert.assertEquals(txLessGasPriceThanCap, res.get(0));
@@ -246,7 +248,7 @@ public class MinerUtilsTest {
 
         Mockito.when(transactionPool.getPendingTransactions()).thenReturn(txs);
 
-        List<Transaction> res = minerUtils.getAllTransactions(transactionPool);
+        List<Transaction> res = minerUtils.getAllTransactions(transactionPool, signatureCache);
 
         Assert.assertEquals(2, res.size());
         Assert.assertEquals(res.get(0).getGasPrice(), Coin.valueOf(10));
@@ -260,7 +262,7 @@ public class MinerUtilsTest {
 
         Mockito.when(transactionPool.getPendingTransactions()).thenReturn(txs);
 
-        res = minerUtils.getAllTransactions(transactionPool);
+        res = minerUtils.getAllTransactions(transactionPool, signatureCache);
 
         Assert.assertEquals(3, res.size());
         Assert.assertEquals(res.get(0).getNonce(), tx1.getNonce());
@@ -295,7 +297,7 @@ public class MinerUtilsTest {
 
         Mockito.when(transactionPool.getPendingTransactions()).thenReturn(txs);
 
-        res = minerUtils.getAllTransactions(transactionPool);
+        res = minerUtils.getAllTransactions(transactionPool, signatureCache);
 
         Assert.assertEquals(6, res.size());
         Assert.assertEquals(res.get(0).getGasPrice(), Coin.valueOf(50));
@@ -328,7 +330,7 @@ public class MinerUtilsTest {
 
         Mockito.when(transactionPool.getPendingTransactions()).thenReturn(txs);
 
-        res = minerUtils.getAllTransactions(transactionPool);
+        res = minerUtils.getAllTransactions(transactionPool, signatureCache);
 
         Assert.assertEquals(9, res.size());
         Assert.assertEquals(res.get(0).getGasPrice(), Coin.valueOf(500));

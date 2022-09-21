@@ -237,7 +237,8 @@ public class MainNetMinerTest {
                 blockFactory,
                 blockExecutor,
                 new MinimumGasPriceCalculator(Coin.valueOf(miningConfig.getMinGasPriceTarget())),
-                new MinerUtils(new BlockTxSignatureCache(new ReceivedTxSignatureCache()))
+                new MinerUtils(),
+                new BlockTxSignatureCache(new ReceivedTxSignatureCache())
         );
     }
 }

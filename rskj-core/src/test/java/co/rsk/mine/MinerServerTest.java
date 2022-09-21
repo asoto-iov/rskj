@@ -105,6 +105,7 @@ public class MinerServerTest extends ParameterizedNetworkUpgradeTest {
     private MinerUtils minerUtils;
     private Repository repository;
     private CompositeEthereumListener compositeEthereumListener;
+    private SignatureCache signatureCache;
     private RskTestFactory rskTestContext;
     
     public MinerServerTest(TestSystemProperties config) {
@@ -125,7 +126,7 @@ public class MinerServerTest extends ParameterizedNetworkUpgradeTest {
         blockStore = rskTestContext.getBlockStore();
         standardBlockchain = rskTestContext.getBlockchain();
         repository = repositoryLocator.startTrackingAt(standardBlockchain.getBestBlock().getHeader());
-        ReceivedTxSignatureCache signatureCache = spy(rskTestContext.getReceivedTxSignatureCache());
+        signatureCache = spy(rskTestContext.getReceivedTxSignatureCache());
         compositeEthereumListener = rskTestContext.getCompositeEthereumListener();
         transactionPool = new TransactionPoolImpl(
                 rskTestContext.getRskSystemProperties(),
@@ -145,7 +146,7 @@ public class MinerServerTest extends ParameterizedNetworkUpgradeTest {
         blockFactory = rskTestContext.getBlockFactory();
         blockExecutor = rskTestContext.getBlockExecutor();
         minimumGasPriceCalculator = new MinimumGasPriceCalculator(Coin.ZERO);
-        minerUtils = new MinerUtils(signatureCache);
+        minerUtils = new MinerUtils();
     }
 
     @Test
@@ -866,7 +867,8 @@ public class MinerServerTest extends ParameterizedNetworkUpgradeTest {
                         blockFactory,
                         blockExecutor,
                         minimumGasPriceCalculator,
-                        minerUtils
+                        minerUtils,
+                        signatureCache
                 ),
                 clock,
                 blockFactory,
@@ -898,7 +900,8 @@ public class MinerServerTest extends ParameterizedNetworkUpgradeTest {
                         blockFactory,
                         blockExecutor,
                         minimumGasPriceCalculator,
-                        minerUtils
+                        minerUtils,
+                        signatureCache
                 ),
                 clock,
                 blockFactory,
