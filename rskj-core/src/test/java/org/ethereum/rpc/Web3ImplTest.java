@@ -682,7 +682,8 @@ public class Web3ImplTest {
                 null,
                 null,
                 mock(Web3InformationRetriever.class),
-                null);
+                null,
+                signatureCache);
 
         assertTrue("Node is not mining", !web3.eth_mining());
         try {
@@ -1893,7 +1894,8 @@ public class Web3ImplTest {
                 null,
                 null,
                 mock(Web3InformationRetriever.class),
-                null);
+                null,
+                signatureCache);
 
         assertEquals("0x" + originalCoinbase, web3.eth_coinbase());
         verify(minerServerMock, times(1)).getCoinbaseAddress();
@@ -2390,6 +2392,7 @@ public class Web3ImplTest {
                         blockchain,
                         mock(RepositoryLocator.class),
                         mock(ExecutionBlockRetriever.class)),
+                null,
                 null);
     }
 
@@ -2499,7 +2502,8 @@ public class Web3ImplTest {
                 new BuildInfo("test", "test"),
                 null,
                 retriever,
-                syncProcessor
+                syncProcessor,
+                new BlockTxSignatureCache(new ReceivedTxSignatureCache())
         );
     }
 
@@ -2560,6 +2564,7 @@ public class Web3ImplTest {
                 new BuildInfo("test", "test"),
                 null,
                 retriever,
+                null,
                 null);
     }
 

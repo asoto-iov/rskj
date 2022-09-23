@@ -15,15 +15,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package org.ethereum.rpc.dto;
 
 import co.rsk.config.TestSystemProperties;
 import co.rsk.core.RskAddress;
 import co.rsk.remasc.RemascTransaction;
-import org.ethereum.core.Block;
-import org.ethereum.core.CallTransaction;
-import org.ethereum.core.Transaction;
+import org.ethereum.core.*;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -45,7 +42,7 @@ public class TransactionResultDTOTest {
     public void remascAddressSerialization() {
         RemascTransaction remascTransaction = new RemascTransaction(new Random().nextLong());
 
-        TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, remascTransaction, false);
+        TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, remascTransaction, false, new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
         assertThat(dto.getFrom(), is("0x0000000000000000000000000000000000000000"));
         assertThat(dto.getR(), is(nullValue()));
         assertThat(dto.getS(), is(nullValue()));
@@ -61,7 +58,7 @@ public class TransactionResultDTOTest {
 
         originalTransaction.sign(new byte[]{});
 
-        TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, originalTransaction, false);
+        TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, originalTransaction, false, new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
 
         Assert.assertNotNull(dto.getR());
         Assert.assertNotNull(dto.getS());
@@ -81,7 +78,7 @@ public class TransactionResultDTOTest {
 
         originalTransaction.sign(new byte[]{});
 
-        TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, originalTransaction, false);
+        TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, originalTransaction, false, new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
 
         Assert.assertNotNull(dto.getNonce());
         Assert.assertEquals("0x0", dto.getNonce());
@@ -96,7 +93,7 @@ public class TransactionResultDTOTest {
 
         originalTransaction.sign(new byte[]{});
 
-        TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, originalTransaction, false);
+        TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, originalTransaction, false, new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
 
         Assert.assertNotNull(dto.getNonce());
         Assert.assertEquals("0x1", dto.getNonce());
