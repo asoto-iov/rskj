@@ -60,12 +60,7 @@ import org.ethereum.config.Constants;
 import org.ethereum.config.blockchain.upgrades.ActivationConfig;
 import org.ethereum.config.blockchain.upgrades.ActivationConfigsForTest;
 import org.ethereum.config.blockchain.upgrades.ConsensusRule;
-import org.ethereum.core.Block;
-import org.ethereum.core.BlockFactory;
-import org.ethereum.core.CallTransaction;
-import org.ethereum.core.Genesis;
-import org.ethereum.core.Repository;
-import org.ethereum.core.Transaction;
+import org.ethereum.core.*;
 import org.ethereum.crypto.ECKey;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.datasource.HashMapDB;
@@ -2884,7 +2879,7 @@ public class BridgeTestIntegration {
 
         try {
             // Run the program on the VM
-            Program program = new Program(config.getVmConfig(), precompiledContracts, blockFactory, mock(ActivationConfig.ForBlock.class), code, invoke, tx, new HashSet<>());
+            Program program = new Program(config.getVmConfig(), precompiledContracts, blockFactory, mock(ActivationConfig.ForBlock.class), code, invoke, tx, new HashSet<>(), new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
             for (int i = 0; i < numOps; i++) {
                 vm.step(program);
             }
@@ -2930,7 +2925,7 @@ public class BridgeTestIntegration {
         when(tx.getHash()).thenReturn(new Keccak256("001122334455667788990011223344556677889900112233445566778899aabb"));
 
         // Run the program on the VM
-        Program program = new Program(config.getVmConfig(), precompiledContracts, blockFactory, activationConfig.forBlock(0), code, invoke, tx, new HashSet<>());
+        Program program = new Program(config.getVmConfig(), precompiledContracts, blockFactory, activationConfig.forBlock(0), code, invoke, tx, new HashSet<>(), new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
         try {
             for (int i = 0; i < numOps; i++) {
                 vm.step(program);

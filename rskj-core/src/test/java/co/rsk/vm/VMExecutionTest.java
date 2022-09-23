@@ -15,7 +15,6 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 package co.rsk.vm;
 
 import co.rsk.config.TestSystemProperties;
@@ -25,6 +24,8 @@ import co.rsk.core.RskAddress;
 import org.ethereum.config.Constants;
 import org.ethereum.config.blockchain.upgrades.ActivationConfig;
 import org.ethereum.core.BlockFactory;
+import org.ethereum.core.BlockTxSignatureCache;
+import org.ethereum.core.ReceivedTxSignatureCache;
 import org.ethereum.crypto.HashUtil;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.vm.*;
@@ -606,7 +607,7 @@ public class VMExecutionTest {
     @Test
     public void dupnArgumentIsNotJumpdest() {
         byte[] code = compiler.compile("JUMPDEST DUPN 0x5b 0x5b");
-        Program program = new Program(vmConfig, precompiledContracts, blockFactory, mock(ActivationConfig.ForBlock.class), code, invoke, null, new HashSet<>());
+        Program program = new Program(vmConfig, precompiledContracts, blockFactory, mock(ActivationConfig.ForBlock.class), code, invoke, null, new HashSet<>(), new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
 
         BitSet jumpdestSet = program.getJumpdestSet();
 
@@ -621,7 +622,7 @@ public class VMExecutionTest {
     @Test
     public void swapnArgumentIsNotJumpdest() {
         byte[] code = compiler.compile("JUMPDEST SWAPN 0x5b 0x5b");
-        Program program = new Program(vmConfig, precompiledContracts, blockFactory, mock(ActivationConfig.ForBlock.class), code, invoke, null, new HashSet<>());
+        Program program = new Program(vmConfig, precompiledContracts, blockFactory, mock(ActivationConfig.ForBlock.class), code, invoke, null, new HashSet<>(), new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
 
         BitSet jumpdestSet = program.getJumpdestSet();
 
@@ -870,7 +871,7 @@ public class VMExecutionTest {
 
     private Program executeCodeWithActivationConfig(byte[] code, int nsteps, ActivationConfig.ForBlock activations) {
         VM vm = new VM(vmConfig, precompiledContracts);
-        Program program = new Program(vmConfig, precompiledContracts, blockFactory, activations, code, invoke,null, new HashSet<>());
+        Program program = new Program(vmConfig, precompiledContracts, blockFactory, activations, code, invoke,null, new HashSet<>(), new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
 
         for (int k = 0; k < nsteps; k++) {
             vm.step(program);
@@ -885,7 +886,7 @@ public class VMExecutionTest {
 
     private Program playCodeWithActivationConfig(byte[] code, ActivationConfig.ForBlock activations) {
         VM vm = new VM(vmConfig, precompiledContracts);
-        Program program = new Program(vmConfig, precompiledContracts, blockFactory, activations, code, invoke,null, new HashSet<>());
+        Program program = new Program(vmConfig, precompiledContracts, blockFactory, activations, code, invoke,null, new HashSet<>(), new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
 
         vm.play(program);
 
