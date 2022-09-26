@@ -102,7 +102,7 @@ public class TransactionResultDTOTest {
     @Test
     public void transactionRemascHasSignatureNullWhenFlagIsFalse() {
         RemascTransaction remascTransaction = new RemascTransaction(new Random().nextLong());
-        TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, remascTransaction, false);
+        TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, remascTransaction, false, new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
         assertNull(dto.getV());
         assertNull(dto.getR());
         assertNull(dto.getS());
@@ -111,7 +111,7 @@ public class TransactionResultDTOTest {
     @Test
     public void transactionRemascHasSignatureZeroWhenFlagIsTrue() {
         RemascTransaction remascTransaction = new RemascTransaction(new Random().nextLong());
-        TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, remascTransaction, true);
+        TransactionResultDTO dto = new TransactionResultDTO(mock(Block.class), 42, remascTransaction, true, new BlockTxSignatureCache(new ReceivedTxSignatureCache()));
         assertEquals(HEX_ZERO, dto.getV());
         assertEquals(HEX_ZERO, dto.getR());
         assertEquals(HEX_ZERO, dto.getS());
