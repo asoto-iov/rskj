@@ -45,6 +45,7 @@ import org.ethereum.vm.*;
 import org.ethereum.vm.MessageCall.MsgType;
 import org.ethereum.vm.PrecompiledContracts.PrecompiledContract;
 import org.ethereum.vm.exception.VMException;
+import org.ethereum.vm.program.call.CallSubProgram;
 import org.ethereum.vm.program.invoke.*;
 import org.ethereum.vm.program.listener.CompositeProgramListener;
 import org.ethereum.vm.program.listener.ProgramListenerAware;
@@ -58,6 +59,7 @@ import java.util.*;
 
 import static co.rsk.util.ListArrayUtil.*;
 import static java.lang.String.format;
+import static org.ethereum.config.blockchain.upgrades.ConsensusRule.RSKIP209;
 import static org.ethereum.util.BIUtil.*;
 import static org.ethereum.util.ByteUtil.EMPTY_BYTE_ARRAY;
 
@@ -170,9 +172,11 @@ public class Program {
     /**
      * Defines the depth of the call stack inside the EVM.
      * Changed to a value more similar to Ethereum's with EIP150
+     * Changed to a value RSKIP209
      * since RSKIP150.
      */
-    public int getMaxDepth() {
+    private int getMaxDepth() {
+        // TODO:I https://iov-labs.slack.com/archives/D0310115BGQ/p1664269595420179
         if (activations.isActive(ConsensusRule.RSKIP150)) {
             return 400;
         }
@@ -181,6 +185,15 @@ public class Program {
 
     public int getCallDeep() {
         return invoke.getCallDeep();
+    }
+
+    public long lockGasForCallDepth(long opGas, long availableGas) {
+        CallSubProgram call = new CallSubProgram.Builder(this)
+                .withOpGas(opGas)
+                .withAvailableGas(availableGas)
+                .create();
+
+        return invoke.getGasCallDepthLocker().lock(call);
     }
 
     private InternalTransaction addInternalTx(byte[] nonce, DataWord gasLimit, RskAddress senderAddress, RskAddress receiveAddress,
@@ -316,6 +329,10 @@ public class Program {
     }
 
     public void verifyStackOverflow(int argsReqs, int returnReqs) {
+        if (!this.getActivations().isActive(RSKIP209)) {
+            return; // nothing to do yet
+        }
+
         if ((stack.size() - argsReqs + returnReqs) > MAX_STACKSIZE) {
             throw new StackTooLargeException("Expected: overflow " + MAX_STACKSIZE + " elements stack limit");
         }
@@ -451,7 +468,7 @@ public class Program {
     }
 
     private void createContract( RskAddress senderAddress, byte[] nonce, DataWord value, DataWord memStart, DataWord memSize, RskAddress contractAddress, boolean isCreate2) {
-        if (getCallDeep() == getMaxDepth()) {
+        if (!activations.isActive(RSKIP209) && getCallDeep() == getMaxDepth()) {
             logger.debug("max depth reached creating a new contract inside contract run: [{}]", senderAddress);
             stackPushZero();
             return;
@@ -563,7 +580,7 @@ public class Program {
 
 
         // [5] COOK THE INVOKE AND EXECUTE
-        programResult = getProgramResult(senderAddress, nonce, value, contractAddress, endowment, programCode, gasLimit, track, newBalance, programResult, isCreate2);
+        programResult = getCreateProgramResult(senderAddress, nonce, value, contractAddress, endowment, programCode, gasLimit, track, newBalance, programResult, isCreate2);
         if (programResult == null) {
             return;
         }
@@ -586,15 +603,15 @@ public class Program {
         }
     }
 
-    private ProgramResult getProgramResult(RskAddress senderAddress, byte[] nonce, DataWord value,
-                                           RskAddress contractAddress, Coin endowment, byte[] programCode,
-                                           long gasLimit, Repository track, Coin newBalance, ProgramResult programResult, boolean isCreate2) {
+    private ProgramResult getCreateProgramResult(RskAddress senderAddress, byte[] nonce, DataWord value,
+                                                 RskAddress contractAddress, Coin endowment, byte[] programCode,
+                                                 long gasLimit, Repository track, Coin newBalance, ProgramResult programResult, boolean isCreate2) {
 
 
         InternalTransaction internalTx = addInternalTx(nonce, getGasLimit(), senderAddress, RskAddress.nullAddress(), endowment, programCode, "create");
-        ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(
+        ProgramInvoke programInvoke = programInvokeFactory.createInternal(
                 this, DataWord.valueOf(contractAddress.getBytes()), getOwnerAddress(), value, gasLimit,
-                newBalance, null, track, this.invoke.getBlockStore(), false, byTestingSuite());
+                newBalance, null, track, this.invoke.getBlockStore(), false, byTestingSuite(), invoke.getGasCallDepthLocker());
 
         returnDataBuffer = null; // reset return buffer right before the call
 
@@ -706,8 +723,7 @@ public class Program {
      * @param msg         is the message call object
      */
     public void callToAddress(MessageCall msg) {
-
-        if (getCallDeep() == getMaxDepth()) {
+        if (!activations.isActive(RSKIP209) && getCallDeep() == getMaxDepth()) {
             stackPushZero();
             refundGas(msg.getGas().longValue(), " call deep limit reach");
             return;
@@ -817,12 +833,13 @@ public class Program {
         returnDataBuffer = null; // reset return buffer right before the call
         ProgramResult childResult;
 
-        ProgramInvoke programInvoke = programInvokeFactory.createProgramInvoke(
+        ProgramInvoke programInvoke = programInvokeFactory.createInternal(
                 this, DataWord.valueOf(contextAddress.getBytes()),
                 msg.getType() == MsgType.DELEGATECALL ? getCallerAddress() : getOwnerAddress(),
                 msg.getType() == MsgType.DELEGATECALL ? getCallValue() : msg.getEndowment(),
                 limitToMaxLong(msg.getGas()), contextBalance, data, track, this.invoke.getBlockStore(),
-                msg.getType() == MsgType.STATICCALL || isStaticCall(), byTestingSuite());
+                msg.getType() == MsgType.STATICCALL || isStaticCall(), byTestingSuite(),
+                invoke.getGasCallDepthLocker());
 
         VM vm = new VM(config, precompiledContracts);
         Program program = new Program(config, precompiledContracts, blockFactory, activations, programCode, programInvoke, internalTx, deletedAccountsInBlock);
@@ -1331,8 +1348,7 @@ public class Program {
     }
 
     public void callToPrecompiledAddress(MessageCall msg, PrecompiledContract contract) {
-
-        if (getCallDeep() == getMaxDepth()) {
+        if (!activations.isActive(RSKIP209) && getCallDeep() == getMaxDepth()) {
             stackPushZero();
             this.refundGas(msg.getGas().longValue(), " call deep limit reach");
 

@@ -27,6 +27,7 @@ import org.ethereum.core.Transaction;
 import org.ethereum.db.BlockStore;
 import org.ethereum.util.ByteUtil;
 import org.ethereum.vm.DataWord;
+import org.ethereum.vm.program.call.CallGasLocker;
 import org.ethereum.vm.program.Program;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +46,8 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
 
     // Invocation by the wire tx
     @Override
-    public ProgramInvoke createProgramInvoke(Transaction tx, int txindex, Block block, Repository repository,
-                                             BlockStore blockStore) {
+    public ProgramInvoke createTopLevel(Transaction tx, int txindex, Block block, Repository repository,
+                                        BlockStore blockStore) {
 
         /***         ADDRESS op       ***/
         // YP: Get address of currently executing account.
@@ -130,21 +131,24 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
                     gaslimit);
         }
 
+        CallGasLocker callGasLocker = new CallGasLocker(); // created only on top level call and propagated
+
         return new ProgramInvokeImpl(addr.getBytes(), origin, caller, balance.getBytes(), gasPrice.getBytes(), gas, callValue.getBytes(), data,
                 lastHash, coinbase, timestamp, number, txindex,difficulty, gaslimit,
-                repository, blockStore);
+                repository, blockStore, callGasLocker);
     }
 
     /**
      * This invocation created for contract call contract
      */
     @Override
-    public ProgramInvoke createProgramInvoke(Program program, DataWord toAddress, DataWord callerAddress,
-                                             DataWord inValue,
-                                             long inGas,
-                                             Coin balanceInt, byte[] dataIn,
-                                             Repository repository, BlockStore blockStore,
-                                             boolean isStaticCall, boolean byTestingSuite) {
+    public ProgramInvoke createInternal(Program program, DataWord toAddress, DataWord callerAddress,
+                                        DataWord inValue,
+                                        long inGas,
+                                        Coin balanceInt, byte[] dataIn,
+                                        Repository repository, BlockStore blockStore,
+                                        boolean isStaticCall, boolean byTestingSuite,
+                                        CallGasLocker callGasLocker) {
 
         DataWord address = toAddress;
         DataWord origin = program.getOriginAddress();
@@ -201,6 +205,6 @@ public class ProgramInvokeFactoryImpl implements ProgramInvokeFactory {
         return new ProgramInvokeImpl(address, origin, caller, balance, gasPrice, agas, callValue,
                 data, lastHash, coinbase, timestamp, number, transactionIndex, difficulty, gasLimit,
                 repository, program.getCallDeep() + 1, blockStore,
-                isStaticCall, byTestingSuite);
+                isStaticCall, byTestingSuite, callGasLocker);
     }
 }
