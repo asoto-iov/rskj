@@ -55,9 +55,6 @@ tasks.withType(AbstractArchiveTask) {
     dirMode = 0775
     fileMode = 0664
 }
-dependencies {
-    implementation 'info.picocli:picocli:4.6.3'
-}
 
 ext {
     libVersions = [
